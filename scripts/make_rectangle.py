@@ -16,25 +16,50 @@ def move_turtle():
     # Create a Twist message to set linear and angular velocity
     vel_msg = Twist()
     
-    # Set linear velocity in the x direction (forward motion)
-    vel_msg.linear.x = 0.0  # Adjust the speed as needed
-    vel_msg.linear.y = 1.0
-    vel_msg.linear.z = 0.0
+    # Define the side length of the rectangle (change as needed)
+    side_length = 2.0  # meters
     
-    # Set angular velocity to zero (no rotation)
-    vel_msg.angular.x = 0.0
-    vel_msg.angular.y = 0.0
-    vel_msg.angular.z = 0.0
+    # Define the duration for moving in a straight line to cover the side of the rectangle
+    move_duration = side_length / 1.0  # velocity is set to 1.0 m/s for simplicity
     
-    rospy.loginfo("Moving the turtle in a straight line...")
+    # Define the time for turning 90 degrees
+    turn_duration = 1.5  # time to turn 90 degrees, adjust if needed
     
-    # Keep publishing the velocity message until the node is shut down
-    while not rospy.is_shutdown():
-        # Publish the velocity message
-        velocity_publisher.publish(vel_msg)
+    # Move in a rectangle (4 sides)
+    for _ in range(4):
+        # Move straight
+        vel_msg.linear.x = 1.0  # move forward at 1 m/s
+        vel_msg.angular.z = 0.0  # no rotation
+        rospy.loginfo("Moving straight")
         
-        # Sleep for the specified rate (10 Hz)
-        rate.sleep()
+        # Move for the defined duration
+        start_time = rospy.Time.now()
+        while rospy.Time.now() - start_time < rospy.Duration(move_duration):
+            velocity_publisher.publish(vel_msg)
+            rate.sleep()
+        
+        # Stop before turning (optional, for smoother motion)
+        vel_msg.linear.x = 0.0
+        velocity_publisher.publish(vel_msg)
+        rospy.sleep(0.5)
+        
+        # Turn 90 degrees
+        vel_msg.linear.x = 0.0  # stop moving forward
+        vel_msg.angular.z = 1.57  # set angular velocity for 90 degree turn (1.57 rad = 90 degrees)
+        rospy.loginfo("Turning 90 degrees")
+        
+        # Turn for the defined duration
+        start_time = rospy.Time.now()
+        while rospy.Time.now() - start_time < rospy.Duration(turn_duration):
+            velocity_publisher.publish(vel_msg)
+            rate.sleep()
+        
+        # Stop turning before moving to the next side
+        vel_msg.angular.z = 0.0
+        velocity_publisher.publish(vel_msg)
+        rospy.sleep(0.5)
+
+    rospy.loginfo("Completed rectangle movement")
 
 if __name__ == '__main__':
     try:

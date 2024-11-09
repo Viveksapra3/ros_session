@@ -45,7 +45,7 @@ def move_turtle():
         
         # Turn 90 degrees
         vel_msg.linear.x = 0.0  # stop moving forward
-        vel_msg.angular.z = 0.9  # set angular velocity for 90 degree turn (1.57 rad = 90 degrees)
+        vel_msg.angular.z = 0.8  # set angular velocity for 90 degree turn (1.57 rad = 90 degrees)
         rospy.loginfo("Turning ")
         
         # Turn for the defined duration
